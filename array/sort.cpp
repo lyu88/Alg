@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -11,28 +12,30 @@ class Solution
 {
 
 public:
-    Solution() {}
+    Solution() {};
 
     vector<int> sort(vector<int> &array)
     {
         if (array.size() < 2)
             return array;
-        return *merge_sort(array);
+        merge_sort(array, array.begin(), array.end());
+        return array;
     }
 
+private:
     vector<int> insert_sort(vector<int> &array)
     {
         // don't use unsigned here because later j compared to int 0 will be always true.
-        for (auto i = array.begin() + 1; i < array.end(); i++)
+        for (int i = 1; i < array.size(); i++)
         {
-            int key = *i;
-            auto j = i-1;
-            while (j >= array.begin() && *j > key)
+            int key = array[i];
+            auto j = i - 1;
+            while (j >= 0 && array[j] > key)
             {
-                *(j+1) = *j;
-                j--;
+                array[j + 1] = array[j];
+                j = j - 1;
             }
-            *(j+1) = key;
+            array[j + 1] = key;
         }
         return array;
     }
@@ -56,57 +59,58 @@ public:
         return array;
     }
 
-    
-
-    
-
-private:
-    vector<int>* merge_sort(vector<int> array, vector<int>::iterator left, vector<int>::iterator right)
+    void merge_sort(vector<int> &array, vector<int>::iterator left, vector<int>::iterator right)
     {
-        if (left < right -1)
+        if (left < right - 1)
         {
-            auto mid = left + (right-left) / 2;
-            auto leftArray = merge_sort(array, left, mid);
-            auto rightArray = merge_sort(array, mid, right);
-            return merge(*leftArray, *rightArray);
+            auto mid = left + (right - left) / 2;
+            merge_sort(array, left, mid);
+            merge_sort(array, mid, right);
+            merge(array, left, right);
         }
     }
 
-    vector<int>* merge(vector<int> a, vector<int> b)
+    void merge(vector<int> &a, vector<int>::iterator left, vector<int>::iterator right)
     {
-        vector<int>* ret = new vector<int>;
-        auto i = a.begin();
+        auto mid = left + (right - left) / 2;
+        vector<int> b(left, mid);
+        vector<int> c(mid, right);
+        auto i = left; // be careful about this starting point
         auto j = b.begin();
-        while (i < a.end() && j < b.end())
+        auto k = c.begin();
+        while (j < b.end() && k < c.end())
         {
-            if (*i < *j)
-                (*ret).push_back(*(i++));
+            if (*j < *k)
+                *i++ = *j++;
             else
-                (*ret).push_back(*(j++));
+                *i++ = *k++;
         }
-        while (i < a.end())
-            (*ret).push_back(*(i++));
         while (j < b.end())
-            (*ret).push_back(*(j++));
-        return ret;
+            *i++ = *j++;
+        while (k < c.end())
+            *i++ = *k++;
     }
 
 
 };
 
 int main() {
-    int arr[] = {1,2,3,4,5,6,7,8,9,10 };
+    
     //int arr[] = {0,-1,0,1,1,1,-1,0,0,1,-1,0,1,-1};
     //string arr[] = {"4", "13", "5", "/", "+"};
     auto sol = Solution();
-    vector<int> input(arr, arr + sizeof(arr)/sizeof(int));
-    vector<int> a2 = {1,2,3,4,5,6,7,8,9,10};
+    //int arr[] = { 1,2,3,4,5,6,7,8,9,10 };
+    //vector<int> a2 = { 1,2,3,4,5,6,7,8,9,10 };
+    //vector<int> input(arr, arr + sizeof(arr) / sizeof(int));
+    vector<int> input = {5,2,1,4,8,6,7,9,10,3};
+    
     for (unsigned i = 0; i < input.size(); i++)
         cout << input.at(i) << ' ';
     cout << endl;
-    auto output = sol.merge(input, a2);
-    for (unsigned i = 0; i < (*output).size(); i++)
-        cout << (*output).at(i) << ' ';
+    sol.sort(input);
+    for (unsigned i = 0; i < (input).size(); i++)
+        cout << (input).at(i) << ' ';
     cout << endl;
+    getchar();
     return 0;
 }
